@@ -15,10 +15,17 @@ services:
       mongo:
         condition: service_healthy
     entrypoint: ["/bin/bash", "-lc"]
-    command: >-
-      mongosh --host mongo:27017 --quiet --eval "try { rs.status().ok } catch(e) { rs.initiate({_id: \"rs0\", members:[{_id:0,host:\"mongo:27017\"}]}) }";
-      until mongosh --host mongo:27017 --quiet --eval "db.hello().isWritablePrimary" | grep -q true; do sleep 2; done;
-      echo "MongoDB replica set is ready."
+    command: |
+      mongosh --host mongo:27017 --quiet --eval 'if (!db.getSiblingDB("local").getCollection("system.replset").findOne()) { rs.initiate({_id: "rs0", members: [{_id: 0, host: "mongo:27017"}]}); }'
+      for i in $(seq 1 60); do
+        if mongosh --host mongo:27017 --quiet --eval 'db.hello().isWritablePrimary' | grep -qx true; then
+          echo "MongoDB replica set is ready."
+          exit 0
+        fi
+        sleep 2
+      done
+      echo "Timed out waiting for MongoDB replica set primary." >&2
+      exit 1
     restart: "no"
   migrate:
     build:
