@@ -1,0 +1,9 @@
+{
+  "name": "finops-enterprise",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Northbridge Commercial Bank financial operations and risk controls demonstration",
+  "workspaces": ["server", "web"],
+  "scripts": {"dev": "concurrently \"npm run dev -w server\" \"npm run dev -w web\"", "build": "npm run build -w web", "start": "npm start -w server", "test": "npm test -w server"},
+  "devDependencies": {"concurrently": "^9.1.2"}
+}

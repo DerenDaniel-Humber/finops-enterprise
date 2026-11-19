@@ -1,0 +1,2 @@
+const test=require('node:test');const assert=require('node:assert/strict');const {routes}=require('../services/risk');
+test('medium, high and critical risk route to required sequential reviewer roles',()=>{assert.deepEqual(routes.Medium,['OperationsReviewer']);assert.deepEqual(routes.High,['OperationsReviewer','SeniorReviewer']);assert.deepEqual(routes.Critical,['SeniorReviewer','ComplianceReviewer']);});

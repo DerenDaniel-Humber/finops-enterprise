@@ -1,0 +1,219 @@
+{
+  "info": {
+    "name": "FinOps Enterprise - Assignment 3",
+    "description": "Risk assessment, approval workflow and transaction processing demonstration. Run migrate and seed first; use the returned workflow IDs for decisions.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:8080/api/v1"
+    },
+    {
+      "key": "transactionId",
+      "value": ""
+    },
+    {
+      "key": "workflowId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Health and dashboards",
+      "item": [
+        {
+          "name": "Health",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/health"
+          }
+        },
+        {
+          "name": "Operations dashboard",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/dashboard"
+          }
+        },
+        {
+          "name": "Risk dashboard",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/risk/dashboard"
+          }
+        },
+        {
+          "name": "Approval dashboard",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/approvals/dashboard"
+          }
+        },
+        {
+          "name": "Actionable queue",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/approvals/queue"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Core directories",
+      "item": [
+        {
+          "name": "Clients",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/clients?limit=20"
+          }
+        },
+        {
+          "name": "Accounts",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/accounts?limit=20"
+          }
+        },
+        {
+          "name": "Transactions",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/transactions?limit=20"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Risk policies and assessments",
+      "item": [
+        {
+          "name": "List policies",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/risk-policies"
+          }
+        },
+        {
+          "name": "List assessments",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/risk-assessments"
+          }
+        },
+        {
+          "name": "Create draft policy",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "X-Actor-Id",
+                "value": "ACTOR-POLICY-001"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"name\":\"CAD policy version\",\"currency\":\"CAD\"}"
+            },
+            "url": "{{baseUrl}}/risk-policies"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Transfer initiation and processing",
+      "item": [
+        {
+          "name": "Initiate transfer",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "txn-demo-001"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"sourceAccountId\":\"ACC-2001\",\"destinationAccountId\":\"ACC-2002\",\"amountMinor\":1250000,\"currency\":\"CAD\",\"reference\":\"Demo transfer\"}"
+            },
+            "url": "{{baseUrl}}/transactions"
+          }
+        },
+        {
+          "name": "Process transaction",
+          "request": {
+            "method": "POST",
+            "url": "{{baseUrl}}/transactions/{{transactionId}}/process"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Approval workflow",
+      "item": [
+        {
+          "name": "List workflows",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/approval-workflows"
+          }
+        },
+        {
+          "name": "Workflow details",
+          "request": {
+            "method": "GET",
+            "url": "{{baseUrl}}/approval-workflows/{{workflowId}}"
+          }
+        },
+        {
+          "name": "Approve stage as Olivia Chen",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Idempotency-Key",
+                "value": "decision-demo-001"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"actorId\":\"ACTOR-OPERATIONS-001\",\"decision\":\"Approved\",\"comments\":\"Reviewed against the client mandate.\"}"
+            },
+            "url": "{{baseUrl}}/approval-workflows/{{workflowId}}/decisions"
+          }
+        },
+        {
+          "name": "Escalate active stage",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\"actorId\":\"ACTOR-OPERATIONS-001\",\"reason\":\"Additional review required.\"}"
+            },
+            "url": "{{baseUrl}}/approval-workflows/{{workflowId}}/escalate"
+          }
+        }
+      ]
+    }
+  ]
+}
